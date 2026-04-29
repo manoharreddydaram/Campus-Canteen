@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isStudent() {
+      return isAuthenticated() && getUserRole() == 'student';
+    }
+
+    function isStaff() {
+      return isAuthenticated() && (getUserRole() == 'canteen_staff' || getUserRole() == 'canteen_admin');
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'canteen_admin';
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isStaff());
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Menu Items collection
+    match /menuItems/{itemId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isStaff();
+    }
+
+    // Orders collection
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (
+        isStaff() ||
+        (isStudent() && resource.data.userId == request.auth.uid)
+      );
+      allow create: if isStudent() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        isStaff() ||
+        // Students can only cancel their own placed orders
+        (isStudent() &&
+          resource.data.userId == request.auth.uid &&
+          resource.data.status == 'placed' &&
+          request.resource.data.status == 'cancelled')
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Feedback collection
+    match /feedback/{feedbackId} {
+      allow read: if isAuthenticated() && (
+        isStaff() ||
+        (isStudent() && resource.data.userId == request.auth.uid)
+      );
+      allow create: if isStudent() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Demand Predictions (AI)
+    match /demandPredictions/{predId} {
+      allow read: if isStaff();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
