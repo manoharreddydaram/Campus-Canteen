@@ -1,46 +1,169 @@
-# Getting Started with Create React App
+# 🍽️ Campus Canteen Ordering System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack web application for college campus canteen food ordering with online payments, real-time kitchen display, AI demand prediction, and QR code-based order verification.
 
-## Available Scripts
+🔗 **Live Demo:** [campus-canteen-ordering-21c7a.web.app](https://campus-canteen-ordering-21c7a.web.app)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## ✨ Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### For Students
+- 📋 Browse menu with real food images and category filters
+- 🛒 Add items to cart with quantity controls
+- 💳 **Online Payment** via Razorpay (GPay, PhonePe, UPI, Cards) or Pay at Pickup
+- 📱 **QR Code** on every order for pickup verification
+- 🔔 **Push Notifications** when order is ready
+- ⏱️ Estimated wait time on active orders
+- 🔄 One-tap reorder from order history
+- ⭐ Rate and review delivered orders
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### For Kitchen Staff
+- 👨‍🍳 **Real-time Kitchen Display** — live order queue with status management
+- 🔄 One-click status updates: Placed → Preparing → Ready → Delivered
+- 💵 Payment mode badges (Paid Online / Pay at Pickup)
+- 📱 Mobile-friendly large buttons for touch screens
+- 📋 QR code scanning for delivery confirmation
 
-### `npm test`
+### For Admin
+- 📊 **Reports & Analytics** — daily order charts, revenue graphs, popular items pie chart
+- 🤖 **AI Demand Prediction** — powered by Google Gemini 2.0 Flash
+- 📝 **Menu Management** — add/edit/delete items with toggle switch for availability
+- 👥 User role management (Student / Staff / Admin)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🛠️ Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19, TypeScript, Tailwind CSS |
+| Backend | Firebase (Auth, Firestore, Hosting) |
+| Payments | Razorpay (Test Mode) |
+| AI | Google Gemini 2.0 Flash API |
+| Charts | Recharts |
+| QR Code | react-qr-code |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🚀 Getting Started
 
-### `npm run eject`
+### Prerequisites
+- Node.js 18+ installed
+- Firebase account (free Spark plan)
+- Git
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Installation
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+# Clone the repository
+git clone https://github.com/manoharreddydaram/Campus-Canteen.git
+cd Campus-Canteen
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+# Install dependencies
+npm install
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+# Start development server
+npm start
+```
 
-## Learn More
+The app opens at `http://localhost:3000`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Firebase Setup
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Enable **Authentication** (Email/Password + Google Sign-In)
+3. Create a **Firestore** database
+4. Update `src/firebase.ts` with your Firebase config
+5. Deploy Firestore rules: `firebase deploy --only firestore`
+
+### Seed Menu Data
+
+```bash
+# Download service account key from Firebase Console
+# Save as serviceAccountKey.json in project root
+
+# Populate menu items with images
+node seed-menu.js
+node update-images.js
+
+# Create demo admin & staff accounts
+node create-demo-accounts.js
+```
+
+### Deploy
+
+```bash
+npm run build
+firebase deploy --only hosting
+```
+
+---
+
+## 👤 Demo Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@canteen.com | admin123 |
+| Staff | staff@canteen.com | staff123 |
+| Student | Sign up with any email | — |
+
+---
+
+## 📁 Project Structure
+
+```
+campus-canteen/
+├── public/                  # Static assets
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── Navbar.tsx
+│   │   ├── ProtectedRoute.tsx
+│   │   └── FeedbackModal.tsx
+│   ├── contexts/            # React contexts
+│   │   ├── AuthContext.tsx   # Authentication state
+│   │   └── CartContext.tsx   # Shopping cart state
+│   ├── pages/               # Route pages
+│   │   ├── LoginPage.tsx
+│   │   ├── DashboardPage.tsx
+│   │   ├── MenuPage.tsx
+│   │   ├── CartPage.tsx      # Razorpay payment integration
+│   │   ├── OrdersPage.tsx    # QR codes + notifications
+│   │   ├── OrderVerifyPage.tsx # QR scan verification
+│   │   ├── KitchenDisplayPage.tsx
+│   │   ├── MenuManagePage.tsx
+│   │   ├── ReportsPage.tsx   # Charts & analytics
+│   │   ├── AIPredictPage.tsx # Gemini AI predictions
+│   │   └── AdminSetupPage.tsx
+│   ├── types/               # TypeScript interfaces
+│   ├── utils/               # Seed data utilities
+│   └── firebase.ts          # Firebase configuration
+├── firestore.rules          # Security rules
+├── firestore.indexes.json   # Composite indexes
+├── seed-menu.js             # Menu seeding script
+├── update-images.js         # Image URL updater
+├── create-demo-accounts.js  # Demo account creator
+└── firebase.json            # Firebase hosting config
+```
+
+---
+
+## 🔒 Security
+
+- Firestore security rules enforce role-based access
+- `serviceAccountKey.json` is excluded via `.gitignore`
+- API keys are for demo/test mode only
+- Authentication required for all data access
+
+---
+
+## 📄 License
+
+This project was built as a **Final Year CSE Project** for academic purposes.
+
+---
+
+## 👨‍💻 Author
+
+**Manohar Reddy Daram**
+- GitHub: [@manoharreddydaram](https://github.com/manoharreddydaram)
